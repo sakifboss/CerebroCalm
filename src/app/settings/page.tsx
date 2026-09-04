@@ -1,16 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AccessibilityControls } from "@/components/AccessibilityControls";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useSymptomStore } from "@/store/symptomStore";
 import { PACING_CLINICAL_NOTE, PACING_DEFAULTS } from "@/lib/constants";
 import { sanitizePacingMinutes } from "@/lib/pacingEngine";
-import { Sliders, Bell, Trash2, Check, Shield } from "lucide-react";
+import { Sliders, Bell, Trash2, Check, Shield, User, LogOut } from "lucide-react";
 
 export default function SettingsPage() {
-  const { pacing, setPacingMinutes, setSoundEnabled, resetAllSettings } = useSettingsStore();
+  const router = useRouter();
+  const { pacing, profile, setPacingMinutes, setSoundEnabled, resetAllSettings, logoutOrResetProfile } = useSettingsStore();
   const { clearAllEntries } = useSymptomStore();
 
   const [actMins, setActMins] = useState(pacing.activityMinutes);
@@ -129,6 +131,30 @@ export default function SettingsPage() {
         </button>
       </div>
 
+      {/* Active Patient Session */}
+      <div className="p-5 bg-calm-bg-card border border-calm-border rounded-xl flex flex-col gap-3">
+        <div className="flex items-center gap-2 text-calm-sage">
+          <User className="w-4 h-4" />
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-calm-text">
+            Active Patient Session
+          </h2>
+        </div>
+        <p className="text-xs text-calm-text-muted leading-relaxed">
+          Currently registered on this device as <strong className="text-calm-text">{profile.name || "Anonymous Patient"}</strong>. You can switch accounts or re-enter onboarding.
+        </p>
+
+        <button
+          onClick={() => {
+            logoutOrResetProfile();
+            router.push("/welcome");
+          }}
+          className="flex items-center gap-2 px-4 py-2.5 bg-calm-bg-surface hover:bg-calm-bg-elevated border border-calm-border hover:border-calm-sage text-calm-text rounded-xl text-xs font-semibold transition-colors min-h-touch self-start"
+        >
+          <LogOut className="w-4 h-4 text-calm-sage" />
+          <span>Switch Patient / Re-register</span>
+        </button>
+      </div>
+
       {/* Local Storage & Wipe Data */}
       <div className="p-5 bg-calm-bg-card border border-calm-border rounded-xl flex flex-col gap-3">
         <div className="flex items-center gap-2 text-calm-emergency">
@@ -153,7 +179,12 @@ export default function SettingsPage() {
             <span className="text-xs text-calm-text">Are you sure you want to permanently erase all local records?</span>
             <div className="flex items-center gap-2">
               <button
-                onClick={handleWipeAll}
+                onClick={async () => {
+                  await clearAllEntries();
+                  resetAllSettings();
+                  setShowWipeConfirm(false);
+                  router.push("/welcome");
+                }}
                 className="px-3.5 py-2 bg-calm-emergency text-calm-text font-bold rounded-lg text-xs min-h-touch"
               >
                 Yes, Purge

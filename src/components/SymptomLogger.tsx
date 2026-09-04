@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { SymptomScale, MoodType } from "@/types/symptom";
+import { SymptomScale, MoodType, SymptomTrigger } from "@/types/symptom";
 import { useSymptomStore } from "@/store/symptomStore";
 import { VoiceInput } from "./VoiceInput";
-import { Check, Activity, Sparkles, Smile, ShieldAlert } from "lucide-react";
+import { speakText, stopSpeaking, isSpeechSynthesisSupported } from "@/lib/speechSynthesis";
+import { TRIGGER_METADATA } from "@/lib/triggerEngine";
+import { Check, Activity, Volume2, VolumeX, Sparkles, ShieldAlert } from "lucide-react";
 
 interface SymptomLoggerProps {
   onSuccess?: () => void;
@@ -17,10 +19,12 @@ export const SymptomLogger: React.FC<SymptomLoggerProps> = ({ onSuccess }) => {
   const [sensorySensitivity, setSensorySensitivity] = useState<SymptomScale>(2);
   const [cognitiveFatigue, setCognitiveFatigue] = useState<SymptomScale>(2);
   const [mood, setMood] = useState<MoodType>("okay");
+  const [selectedTriggers, setSelectedTriggers] = useState<SymptomTrigger[]>([]);
   const [note, setNote] = useState<string>("");
   const [source, setSource] = useState<"manual" | "voice">("manual");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [isReadingAloud, setIsReadingAloud] = useState(false);
 
   const scales: SymptomScale[] = [1, 2, 3, 4, 5];
   const scaleLabels = ["Minimal", "Mild", "Moderate", "Elevated", "Severe"];
@@ -49,6 +53,27 @@ export const SymptomLogger: React.FC<SymptomLoggerProps> = ({ onSuccess }) => {
     setSource("voice");
   };
 
+  const toggleTrigger = (trigger: SymptomTrigger) => {
+    if (selectedTriggers.includes(trigger)) {
+      setSelectedTriggers(selectedTriggers.filter((t) => t !== trigger));
+    } else {
+      setSelectedTriggers([...selectedTriggers, trigger]);
+    }
+  };
+
+  const handleToggleReadAloud = () => {
+    if (isReadingAloud) {
+      stopSpeaking();
+      setIsReadingAloud(false);
+    } else {
+      setIsReadingAloud(true);
+      const text = `Quick recovery check. Question one: How is your head right now from one minimal to five severe? Question two: How sensitive are you to light or sound? Question three: How foggy does your mind feel?`;
+      speakText(text, {
+        onEnd: () => setIsReadingAloud(false),
+      });
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -59,6 +84,7 @@ export const SymptomLogger: React.FC<SymptomLoggerProps> = ({ onSuccess }) => {
         sensorySensitivity,
         cognitiveFatigue,
         mood,
+        triggers: selectedTriggers.length > 0 ? selectedTriggers : undefined,
         note: note.trim() || undefined,
         source,
       });
@@ -77,8 +103,28 @@ export const SymptomLogger: React.FC<SymptomLoggerProps> = ({ onSuccess }) => {
 
   return (
     <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-reading mx-auto">
-      {/* Voice Assistant Option */}
-      <VoiceInput onApplyParsedData={handleVoiceDataApplied} />
+      {/* Top Action Row: Voice Input + Screenless Read-Aloud Audio Coach */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex-1">
+          <VoiceInput onApplyParsedData={handleVoiceDataApplied} />
+        </div>
+
+        {isSpeechSynthesisSupported() && (
+          <button
+            type="button"
+            onClick={handleToggleReadAloud}
+            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-semibold border transition-colors min-h-touch ${
+              isReadingAloud
+                ? "bg-calm-sage text-calm-bg-deep border-calm-sage shadow-md"
+                : "bg-calm-bg-card border-calm-border text-calm-text-dim hover:text-calm-text"
+            }`}
+            aria-label={isReadingAloud ? "Stop reading aloud" : "Read questions aloud"}
+          >
+            {isReadingAloud ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-calm-sage" />}
+            <span>{isReadingAloud ? "Stop Audio Prompts" : "Read Prompts Aloud"}</span>
+          </button>
+        )}
+      </div>
 
       {/* Question 1: Headache */}
       <div className="flex flex-col gap-2.5 p-5 bg-calm-bg-card border border-calm-border rounded-xl">
@@ -220,6 +266,42 @@ export const SymptomLogger: React.FC<SymptomLoggerProps> = ({ onSuccess }) => {
               {m.label}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Question 5: Smart Trigger Tag Selectors */}
+      <div className="flex flex-col gap-2.5 p-5 bg-calm-bg-card border border-calm-border rounded-xl">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-semibold text-calm-text">
+            5. Potential Triggers Preceding this Check
+          </label>
+          <span className="text-xs text-calm-text-muted">1-tap correlation</span>
+        </div>
+        <p className="text-xs text-calm-text-muted">
+          Select any environmental or cognitive stressors present before this check.
+        </p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+          {(Object.keys(TRIGGER_METADATA) as SymptomTrigger[]).map((tKey) => {
+            const isSelected = selectedTriggers.includes(tKey);
+            const meta = TRIGGER_METADATA[tKey];
+            return (
+              <button
+                key={tKey}
+                type="button"
+                onClick={() => toggleTrigger(tKey)}
+                className={`p-2.5 rounded-xl border text-left transition-colors flex items-center gap-2 min-h-touch ${
+                  isSelected
+                    ? "bg-calm-sage-surface border-calm-sage text-calm-text ring-1 ring-calm-sage"
+                    : "bg-calm-bg-surface border-calm-border text-calm-text-dim hover:text-calm-text hover:border-calm-border-focus"
+                }`}
+                aria-pressed={isSelected}
+              >
+                <span className="text-base">{meta.icon}</span>
+                <span className="text-xs font-medium">{meta.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

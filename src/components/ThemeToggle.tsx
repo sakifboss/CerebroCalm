@@ -3,10 +3,10 @@
 import React, { useEffect } from "react";
 import { useSettingsStore } from "@/store/settingsStore";
 import { ThemeMode } from "@/types/user";
-import { Moon, Eye, SunDim, ZapOff } from "lucide-react";
+import { Moon, Eye, SunDim, ZapOff, Globe } from "lucide-react";
 
 export const ThemeToggle: React.FC = () => {
-  const { accessibility, setTheme, setReducedMotion } = useSettingsStore();
+  const { accessibility, setTheme, setReducedMotion, setLanguage } = useSettingsStore();
 
   useEffect(() => {
     // Initial sync with DOM to prevent flicker
@@ -92,6 +92,38 @@ export const ThemeToggle: React.FC = () => {
         >
           {accessibility.reducedMotion ? "Active" : "Off"}
         </button>
+      </div>
+
+      <div className="pt-2 border-t border-calm-border flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Globe className="w-4 h-4 text-calm-text-muted" />
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-calm-text">Language / ভাষা</span>
+            <span className="text-xs text-calm-text-muted">English or বাংলা (Bengali)</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setLanguage("en")}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold min-h-[36px] border transition-colors ${
+              accessibility.language === "en"
+                ? "bg-calm-sage text-calm-bg-deep border-calm-sage"
+                : "bg-calm-bg-surface text-calm-text-muted border-calm-border"
+            }`}
+          >
+            English
+          </button>
+          <button
+            onClick={() => setLanguage("bn")}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold min-h-[36px] border transition-colors ${
+              accessibility.language === "bn"
+                ? "bg-calm-sage text-calm-bg-deep border-calm-sage"
+                : "bg-calm-bg-surface text-calm-text-muted border-calm-border"
+            }`}
+          >
+            বাংলা
+          </button>
+        </div>
       </div>
     </div>
   );

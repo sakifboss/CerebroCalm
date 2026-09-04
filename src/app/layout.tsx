@@ -6,6 +6,7 @@ import { RedFlagAlert } from "@/components/RedFlagAlert";
 import { DarkSanctuary } from "@/components/DarkSanctuary";
 import { ClinicalDisclaimer } from "@/components/ClinicalDisclaimer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { OnboardingGuard } from "@/components/OnboardingGuard";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -58,9 +59,9 @@ export default function RootLayout({
           {/* Dark Sanctuary Overlay (Rest Interval) */}
           <DarkSanctuary />
 
-          {/* Page Contents */}
+          {/* Page Contents protected by OnboardingGuard */}
           <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 sm:py-8">
-            {children}
+            <OnboardingGuard>{children}</OnboardingGuard>
           </main>
 
           {/* Educational Disclaimer Footer */}

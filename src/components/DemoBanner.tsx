@@ -3,12 +3,18 @@
 import React, { useState } from "react";
 import { useSymptomStore } from "@/store/symptomStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { usePathname } from "next/navigation";
 import { Sparkles, AlertOctagon, RefreshCw, Trash2, ShieldAlert } from "lucide-react";
 
 export const DemoBanner: React.FC = () => {
+  const pathname = usePathname();
   const { injectSyntheticDemoData, clearDemoEntries } = useSymptomStore();
-  const { demoMode, setDemoMode, triggerRedFlag } = useSettingsStore();
+  const { demoMode, setDemoMode, triggerRedFlag, profile } = useSettingsStore();
   const [activeScenario, setActiveScenario] = useState<string | null>(null);
+
+  if (pathname === "/welcome" || !profile.hasCompletedOnboarding) {
+    return null;
+  }
 
   if (!demoMode) {
     return (

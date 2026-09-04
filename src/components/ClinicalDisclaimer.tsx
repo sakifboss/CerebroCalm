@@ -1,10 +1,13 @@
 "use client";
 
 import React from "react";
+import { usePathname } from "next/navigation";
 import { CLINICAL_DISCLAIMER_TEXT } from "@/lib/constants";
 import { AlertCircle } from "lucide-react";
 
 export const ClinicalDisclaimer: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
+  const pathname = usePathname();
+  if (pathname === "/welcome") return null;
   if (compact) {
     return (
       <div className="flex items-center gap-2 px-3 py-2 bg-calm-bg-surface border border-calm-border rounded-lg text-xs text-calm-text-muted">

@@ -18,6 +18,9 @@ import {
   FileText,
   Calendar,
   Stethoscope,
+  Zap,
+  Building2,
+  Sparkles,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -48,12 +51,12 @@ export default function DashboardPage() {
       <section aria-label="Patient Profile Summary" className="p-4 bg-calm-bg-card border border-calm-border rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-calm-sage-surface border border-calm-sage/30 flex items-center justify-center text-calm-sage font-bold">
-            {profile.name.slice(0, 1).toUpperCase()}
+            {(profile.name || "P").slice(0, 1).toUpperCase()}
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <span className="text-base font-bold text-calm-text">
-                Welcome, {profile.name}
+                Welcome, {profile.name || "Patient"}
               </span>
               <button
                 onClick={() => setIsProfileModalOpen(true)}
@@ -77,14 +80,47 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <Link
-          href="/report"
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-calm-bg-surface hover:bg-calm-bg-elevated border border-calm-border hover:border-calm-sage text-calm-text rounded-xl text-xs font-semibold transition-colors self-stretch sm:self-auto justify-center"
-        >
-          <FileText className="w-3.5 h-3.5 text-calm-sage" />
-          <span>Doctor's Report</span>
-        </Link>
+        <div className="flex items-center gap-2 self-stretch sm:self-auto">
+          <Link
+            href="/welcome"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-calm-bg-surface hover:bg-calm-bg-elevated border border-calm-border hover:border-calm-sage/60 text-calm-text-muted hover:text-calm-text rounded-xl text-xs font-medium transition-colors justify-center"
+          >
+            <span>Onboarding</span>
+          </Link>
+          <Link
+            href="/report"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-calm-bg-surface hover:bg-calm-bg-elevated border border-calm-border hover:border-calm-sage text-calm-text rounded-xl text-xs font-semibold transition-colors justify-center"
+          >
+            <FileText className="w-3.5 h-3.5 text-calm-sage" />
+            <span>Doctor's Report</span>
+          </Link>
+        </div>
       </section>
+
+      {/* Gentle Onboarding Banner if not completed */}
+      {!profile.hasCompletedOnboarding && (
+        <div className="p-4 bg-calm-sage-surface/40 border border-calm-sage/40 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-calm-sage-surface border border-calm-sage/30 text-calm-sage">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="font-bold text-calm-text">
+                Welcome to your low-cognitive recovery companion
+              </p>
+              <p className="text-calm-text-muted">
+                Complete your local profile setup, concussion timeline, or load clinical demo data.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/welcome"
+            className="px-3 py-1.5 bg-calm-sage text-calm-bg-deep font-bold rounded-xl text-xs hover:opacity-95 transition-opacity shrink-0 self-stretch sm:self-auto text-center"
+          >
+            Get Started →
+          </Link>
+        </div>
+      )}
 
       {/* Three Core Questions Section */}
       <section aria-labelledby="status-overview" className="flex flex-col gap-4">
@@ -266,26 +302,76 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Clinical Summary PDF Report Link */}
-        <Link
-          href="/report"
-          className="flex items-center justify-between p-4 bg-calm-bg-card hover:bg-calm-bg-surface border border-calm-border hover:border-calm-sage/50 rounded-xl transition-colors text-xs text-calm-text"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-calm-sage-surface border border-calm-sage/30 text-calm-sage">
-              <FileText className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="font-bold text-calm-text block">
-                Doctor's Clinical Summary Report
-              </span>
-              <span className="text-calm-text-muted text-[11px]">
-                One-click print/PDF summary for neurology consultations
-              </span>
-            </div>
+        {/* Clinical & Neuro-Recovery Tools Section */}
+        <div className="flex flex-col gap-2 pt-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-calm-text-muted">
+            Clinical Documents & Assessments
+          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Tool 1: Doctor's Report */}
+            <Link
+              href="/report"
+              className="flex flex-col justify-between p-4 bg-calm-bg-card hover:bg-calm-bg-surface border border-calm-border hover:border-calm-sage/50 rounded-xl transition-colors text-xs text-calm-text group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="p-2 rounded-lg bg-calm-sage-surface border border-calm-sage/30 text-calm-sage">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <span className="text-calm-sage text-[11px] font-semibold group-hover:underline">Print PDF →</span>
+              </div>
+              <div>
+                <span className="font-bold text-calm-text block text-sm mb-0.5">
+                  Doctor's Report
+                </span>
+                <span className="text-calm-text-muted text-[11px] leading-snug">
+                  7-day trajectory table & red-flag audit for neurology visits.
+                </span>
+              </div>
+            </Link>
+
+            {/* Tool 2: Accommodation Letter */}
+            <Link
+              href="/accommodations"
+              className="flex flex-col justify-between p-4 bg-calm-bg-card hover:bg-calm-bg-surface border border-calm-border hover:border-calm-sage/50 rounded-xl transition-colors text-xs text-calm-text group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="p-2 rounded-lg bg-calm-sage-surface border border-calm-sage/30 text-calm-sage">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <span className="text-calm-sage text-[11px] font-semibold group-hover:underline">Generate →</span>
+              </div>
+              <div>
+                <span className="font-bold text-calm-text block text-sm mb-0.5">
+                  Work/School Letter
+                </span>
+                <span className="text-calm-text-muted text-[11px] leading-snug">
+                  Official accommodation notice adapted to your recovery stage.
+                </span>
+              </div>
+            </Link>
+
+            {/* Tool 3: Reaction Check */}
+            <Link
+              href="/reaction"
+              className="flex flex-col justify-between p-4 bg-calm-bg-card hover:bg-calm-bg-surface border border-calm-border hover:border-calm-sage/50 rounded-xl transition-colors text-xs text-calm-text group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="p-2 rounded-lg bg-calm-sage-surface border border-calm-sage/30 text-calm-sage">
+                  <Zap className="w-4 h-4" />
+                </div>
+                <span className="text-calm-sage text-[11px] font-semibold group-hover:underline">Test (15s) →</span>
+              </div>
+              <div>
+                <span className="font-bold text-calm-text block text-sm mb-0.5">
+                  Reaction Stability
+                </span>
+                <span className="text-calm-text-muted text-[11px] leading-snug">
+                  Low-glare test measuring processing latency & consistency.
+                </span>
+              </div>
+            </Link>
           </div>
-          <span className="text-calm-sage font-semibold text-xs">View Report →</span>
-        </Link>
+        </div>
       </section>
 
       {/* Lightweight ML Personal Insight */}

@@ -18,6 +18,15 @@ export const MoodSchema = z.enum([
   "exhausted",
 ]);
 
+export const SymptomTriggerSchema = z.enum([
+  "screens",
+  "lighting",
+  "noise",
+  "motion",
+  "poor_sleep",
+  "physical",
+]);
+
 export const SymptomEntrySchema = z.object({
   id: z.string().min(1),
   timestamp: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}T/)),
@@ -25,6 +34,7 @@ export const SymptomEntrySchema = z.object({
   sensorySensitivity: SymptomScaleSchema,
   cognitiveFatigue: SymptomScaleSchema,
   mood: MoodSchema,
+  triggers: z.array(SymptomTriggerSchema).optional(),
   note: z.string().max(300).optional(),
   source: z.enum(["manual", "voice", "demo"]),
   isDemo: z.boolean().optional(),

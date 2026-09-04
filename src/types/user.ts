@@ -27,6 +27,7 @@ export interface AccessibilitySettings {
   fontSize: "standard" | "large" | "extra-large";
   highContrast: boolean;
   screenReaderOptimized: boolean;
+  language: "en" | "bn";
 }
 
 export interface UserSettings {

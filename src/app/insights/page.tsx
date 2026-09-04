@@ -4,8 +4,22 @@ import React, { useEffect, useMemo } from "react";
 import { useSymptomStore } from "@/store/symptomStore";
 import { usePacingStore } from "@/store/pacingStore";
 import { analyzeSymptomTrends } from "@/lib/trendAnalysis";
+import { analyzeTriggerCorrelations } from "@/lib/triggerEngine";
 import { RecoveryChart } from "@/components/RecoveryChart";
-import { LineChart, TrendingDown, TrendingUp, Minus, ShieldCheck, Clock } from "lucide-react";
+import {
+  LineChart,
+  TrendingDown,
+  TrendingUp,
+  Minus,
+  ShieldCheck,
+  Clock,
+  Sparkles,
+  ArrowRight,
+  FileText,
+  Timer,
+  GraduationCap,
+} from "lucide-react";
+import Link from "next/link";
 
 export default function InsightsPage() {
   const { entries, loadEntries, prediction } = useSymptomStore();
@@ -17,6 +31,7 @@ export default function InsightsPage() {
   }, [loadEntries, loadHistory]);
 
   const trends = useMemo(() => analyzeSymptomTrends(entries), [entries]);
+  const triggerCorrelations = useMemo(() => analyzeTriggerCorrelations(entries), [entries]);
 
   const directionIcon =
     trends.direction === "easing" ? (
@@ -26,13 +41,6 @@ export default function InsightsPage() {
     ) : (
       <Minus className="w-4 h-4 text-calm-text-dim" />
     );
-
-  const directionLabel =
-    trends.direction === "easing"
-      ? "Easing (Lower symptom burden)"
-      : trends.direction === "elevating"
-      ? "Elevating (Higher symptom burden)"
-      : "Steady / Baseline Stable";
 
   return (
     <div className="flex flex-col gap-6 max-w-reading mx-auto">
@@ -83,6 +91,48 @@ export default function InsightsPage() {
         </div>
       </div>
 
+      {/* Trigger Correlation Engine Observations */}
+      {triggerCorrelations.length > 0 && (
+        <div className="p-5 bg-calm-bg-card border border-calm-border rounded-xl flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-calm-sage flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Environmental & Cognitive Trigger Observations</span>
+            </span>
+            <span className="text-[11px] text-calm-text-muted">Difference-of-Means</span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            {triggerCorrelations.map((trig) => (
+              <div
+                key={trig.trigger}
+                className="p-3 bg-calm-bg-surface border border-calm-border rounded-lg flex items-center justify-between text-xs"
+              >
+                <div>
+                  <span className="font-bold text-calm-text">{trig.label}</span>
+                  <span className="text-calm-text-muted block text-[11px]">
+                    Tagged in {trig.count} check{trig.count > 1 ? "s" : ""} · Average fatigue: {trig.averageFatigueWhenPresent}/5
+                  </span>
+                </div>
+                <span
+                  className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                    trig.delta > 0
+                      ? "bg-calm-amber-surface text-calm-amber"
+                      : "bg-calm-sage-surface text-calm-sage"
+                  }`}
+                >
+                  {trig.delta > 0 ? `+${trig.delta} fatigue` : `${trig.delta} fatigue`}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-[10px] text-calm-text-muted leading-relaxed">
+            Correlations compare symptom levels during tagged sessions against your baseline average. Discuss these triggers with your healthcare provider.
+          </p>
+        </div>
+      )}
+
       {/* Observation Card */}
       <div className="p-5 bg-calm-bg-card border border-calm-border rounded-xl flex flex-col gap-2.5">
         <div className="flex items-center gap-2">
@@ -97,6 +147,48 @@ export default function InsightsPage() {
         <p className="text-[11px] text-calm-text-muted leading-relaxed">
           Observations reflect patterns in your personal logs. They do not constitute a clinical assessment of neurological recovery speed or injury status.
         </p>
+      </div>
+
+      {/* Clinical Tools Navigation Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Link
+          href="/reaction"
+          className="p-4 bg-calm-bg-card hover:bg-calm-bg-surface border border-calm-border hover:border-calm-sage rounded-xl flex flex-col gap-1 text-xs transition-colors"
+        >
+          <div className="flex items-center gap-2 text-calm-sage font-bold">
+            <Timer className="w-4 h-4" />
+            <span>Focus Micro-Check</span>
+          </div>
+          <span className="text-[11px] text-calm-text-muted">
+            15-second low-glare reaction stability assessment
+          </span>
+        </Link>
+
+        <Link
+          href="/report"
+          className="p-4 bg-calm-bg-card hover:bg-calm-bg-surface border border-calm-border hover:border-calm-sage rounded-xl flex flex-col gap-1 text-xs transition-colors"
+        >
+          <div className="flex items-center gap-2 text-calm-sage font-bold">
+            <FileText className="w-4 h-4" />
+            <span>Doctor's PDF Summary</span>
+          </div>
+          <span className="text-[11px] text-calm-text-muted">
+            Printable clinical report for neurology consults
+          </span>
+        </Link>
+
+        <Link
+          href="/accommodations"
+          className="p-4 bg-calm-bg-card hover:bg-calm-bg-surface border border-calm-border hover:border-calm-sage rounded-xl flex flex-col gap-1 text-xs transition-colors"
+        >
+          <div className="flex items-center gap-2 text-calm-sage font-bold">
+            <GraduationCap className="w-4 h-4" />
+            <span>Work / School Letter</span>
+          </div>
+          <span className="text-[11px] text-calm-text-muted">
+            Formal stage-based accommodation request
+          </span>
+        </Link>
       </div>
 
       {/* Pacing Adherence Summary */}

@@ -27,11 +27,11 @@ export function getStageInfo(stage: RecoveryStage) {
 }
 
 export const DEFAULT_PATIENT_PROFILE: PatientProfile = {
-  name: "Recovery Guest",
-  injuryDate: new Date(Date.now() - 6 * 24 * 3600 * 1000).toISOString().slice(0, 10), // Default: 6 days ago
+  name: "",
+  injuryDate: "",
   recoveryStage: 2,
-  doctorName: "Dr. Elena Vance, MD",
-  doctorPhone: "555-0199",
-  clinicName: "Sports Concussion Clinic",
+  doctorName: "",
+  doctorPhone: "",
+  clinicName: "",
   hasCompletedOnboarding: false,
 };
