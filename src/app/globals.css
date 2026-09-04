@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Photophobia-Safe Palette Default (Warm Stone / Amber Glare-Free) */
+  --bg-primary: #1C1917;
+  --bg-secondary: #161412;
+  --bg-card: #211D1A;
+  --bg-surface: #25211E;
+  --bg-elevated: #2E2824;
+  --border: #38322D;
+  --text-primary: #FEF3C7;
+  --text-secondary: #FDE68A;
+  --text-dim: #D6C7A1;
+  --accent-sage: #A7F3D0;
+  --accent-sage-dark: #065F46;
+  --accent-amber: #FBBF24;
+  --emergency: #B91C1C;
+}
+
+html.theme-low-light {
+  --bg-primary: #171B19;
+  --bg-secondary: #121514;
+  --bg-card: #1D2320;
+  --bg-surface: #222926;
+  --bg-elevated: #28312D;
+  --border: #333F3A;
+  --text-primary: #E6F4EA;
+  --text-secondary: #C7E0D3;
+  --text-dim: #A8C7B7;
+  --accent-sage: #86EFAC;
+  --accent-sage-dark: #065F46;
+  --accent-amber: #FBBF24;
+  --emergency: #DC2626;
+}
+
+html.theme-high-contrast {
+  --bg-primary: #131110;
+  --bg-secondary: #0E0C0B;
+  --bg-card: #1C1816;
+  --bg-surface: #24201C;
+  --bg-elevated: #302A25;
+  --border: #52473F;
+  --text-primary: #FFF7ED;
+  --text-secondary: #FED7AA;
+  --text-dim: #E2D9D2;
+  --accent-sage: #6EE7B7;
+  --accent-sage-dark: #047857;
+  --accent-amber: #F59E0B;
+  --emergency: #EF4444;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: Inter, Lexend, system-ui, -apple-system, sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reduced Motion Enforcements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Focus Indicators for Keyboard Accessibility */
+:focus-visible {
+  outline: 2px solid var(--accent-sage);
+  outline-offset: 2px;
+}
+
+/* Touch targets */
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
